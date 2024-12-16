@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="EUC-KR"%>
+    pageEncoding="UTF-8"%>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.DriverManager" %>
 <%@ page import="java.sql.PreparedStatement" %>
@@ -7,7 +7,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="com.company1.DBManager" %>
 <%
-	//ÇÑ±Û Ã³¸®
+	//í•œê¸€ ì²˜ë¦¬
 	request.setCharacterEncoding("UTF-8");	
 %>
 <!DOCTYPE html>
@@ -30,101 +30,168 @@
 		.update-button:hover {
 			cursor: pointer;
 		}
+		#init-box {
+			background-color: orange;
+		}
+		#init-box:hover {
+			cursor: pointer;
+		}
+		#delete-all-button {
+			background-color: red;
+		}
+		#delete-all-button:hover {
+			cursor: pointer;
+		}
 	</style>
 </head>
 <body>
   <div class="container">
     <h1>Web Programming</h1>
-    <p>°øºÎÇÒ ÁÖÁ¦¸¦ ±â·ÏÇØ º¸¼¼¿ä</p>
+    <p>ê³µë¶€í•  ì£¼ì œë¥¼ ê¸°ë¡í•´ ë³´ì„¸ìš”</p>
     <form id="form1" action="./webprogramming_insert.jsp" method="POST">
-     ÁÖÁ¦
+      <button id="delete-all-button">ì „ì²´ì‚­ì œ</button>
+      ì£¼ì œ
       <input type="text" id="subject" name="subject" autofocus>
       <br>
       <input type="text" id="prior" name="prior">
-      ¿ì¼±¼øÀ§
-      <button>Ãß°¡</button>
+      ìš°ì„ ìˆœìœ„
+      <button id="add-button" style="cursor: pointer;">ì¶”ê°€</button>
+      <!-- return falseëŠ” formì˜ actionê°’ìœ¼ë¡œ ì´ë™í•˜ì§€ ì•Šê²Œ ë§‰ê¸° -->
+      <button id="init-box" onclick="return false;">ì´ˆê¸°í™”</button>
     </form>
     <hr>  
-    <ul id="itemList"></ul>
+    <ul id="itemList">
 <%
-  	//studdy1Å×ÀÌºí¿¡¼­ µ¥ÀÌÅÍ °¡Á®¿À±â
+  	//studdy1í…Œì´ë¸”ì—ì„œ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
 	Connection conn = DBManager.getDBConnection(); 
 	
 	String sql = "SELECT study_no, study_content, study_prior, reg_date " 
 					+ " FROM study1 ORDER BY study_no DESC";
 	
 	try {
-		//PreparedStatement ¾ò±â ¹× °ª ÁöÁ¤
+		//PreparedStatement ì–»ê¸° ë° ê°’ ì§€ì •
 		PreparedStatement pstmt = conn.prepareStatement(sql);
 		
-		//SQL¹® ½ÇÇà ÈÄ ResultSetÀ» ÅëÇØ µ¥ÀÌÅÍ ÀĞ±â
-		ResultSet rs = pstmt.executeQuery(); // SELECT¹® ½ÇÇà
-		while(rs.next()) { // rsÀÇ 0¹øÂ° Ä¿¼­¿¡ µ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é true
+		//SQLë¬¸ ì‹¤í–‰ í›„ ResultSetì„ í†µí•´ ë°ì´í„° ì½ê¸°
+		ResultSet rs = pstmt.executeQuery(); // SELECTë¬¸ ì‹¤í–‰
+		while(rs.next()) { // rsì˜ 0ë²ˆì§¸ ì»¤ì„œì— ë°ì´í„°ê°€ ìˆìœ¼ë©´ true
 %>
 <li>
-	<span><%= rs.getString("study_content") %></span>,
-	¿ì¼±¼øÀ§: <span><%= rs.getInt("study_prior") %></span>
-	<button class="delete-button" data-id="<%= rs.getInt("study_no") %>">»èÁ¦</button>
-	<button class="update-button" data-id="<%= rs.getInt("study_no") %>">¼öÁ¤</button>
+	<span class="li-half">
+		<%= rs.getString("study_content") %>, ìš°ì„ ìˆœìœ„: <span><%= rs.getInt("study_prior") %>
+	</span>
+	<button class="delete-button" data-id="<%= rs.getInt("study_no") %>">ì‚­ì œ</button>
+	<button class="update-button" data-id="<%= rs.getInt("study_no") %>">ìˆ˜ì •</button>
 </li>
 <%
 		}
 		
-		// DBÀÚ¿ø Á¤¸®
+		// DBìì› ì •ë¦¬
 		DBManager.dbClose(conn, pstmt, rs);
 	} catch(SQLException se) {
 		se.printStackTrace();
-		System.err.println("Å×ÀÌºí Á¶È¸ ¿¡·¯");
+		System.err.println("í…Œì´ë¸” ì¡°íšŒ ì—ëŸ¬");
 	}
 %>
 	</ul>
   </div>
 
   <script>
-   	document.addEventListener("DOMContentLoaded", function() {   // À¥ ÆäÀÌÁö°¡ ·ÎµùµÇ¸é ½ÇÇà
-	  const button = document.querySelector("button");  // ¹öÆ° ¿ä¼Ò °¡Á®¿À±â
-	  button.addEventListener("click", function (event) {  // ¹öÆ°À» Å¬¸¯ÇÏ¸é ½ÇÇà
-		 event.preventDefault();  // ±âº» µ¿ÀÛÀ» ¸·À½
-	     newRegister();   // »õ·Î¿î ÁÖÁ¦¸¦ µî·ÏÇÏ´Â ÇÔ¼ö È£Ãâ  
+   	document.addEventListener("DOMContentLoaded", function() {   // ì›¹ í˜ì´ì§€ê°€ ë¡œë”©ë˜ë©´ ì‹¤í–‰
+	  //const button = document.querySelector("button");  // ë²„íŠ¼ ìš”ì†Œ ê°€ì ¸ì˜¤ê¸°
+	  const button = document.getElementById("add-button");  // ë²„íŠ¼ ìš”ì†Œ ê°€ì ¸ì˜¤ê¸°
+	  button.addEventListener("click", function (event) {  // ë²„íŠ¼ì„ í´ë¦­í•˜ë©´ ì‹¤í–‰
+		 event.preventDefault();  // ê¸°ë³¸ ë™ì‘ì„ ë§‰ìŒ
+	     newRegister();   // ìƒˆë¡œìš´ ì£¼ì œë¥¼ ë“±ë¡í•˜ëŠ” í•¨ìˆ˜ í˜¸ì¶œ  
 	  });
 	  
-	  // Ç×¸ñÀ» Å¬¸¯ÇÏ¸é ÁÖÁ¦¹øÈ£ alertÃ¢À¸·Î ³ª¿À°Ô ÇÏ±â
-   	  const itemList = document.querySelector("#itemList");  // ºÎ¸ğ ³ëµå °¡Á®¿À±â
+	  // ì…ë ¥ìƒì ì´ˆê¸°í™” ë²„íŠ¼ ê¸°ëŠ¥
+	  const btnInputInit = document.getElementById("init-box");  // ì´ˆê¸°í™” ë²„íŠ¼ ìš”ì†Œ ê°€ì ¸ì˜¤ê¸°
+	  btnInputInit.addEventListener("click", function (event) {  // ë²„íŠ¼ì„ í´ë¦­í•˜ë©´ ì‹¤í–‰
+		  document.getElementById("subject").value = '';
+		  document.getElementById("prior").value = '';
+      });
+	  
+	  // í•­ëª©ì„ í´ë¦­í•˜ë©´ ì£¼ì œë²ˆí˜¸ alertì°½ìœ¼ë¡œ ë‚˜ì˜¤ê²Œ í•˜ê¸°
+   	  const itemList = document.querySelector("#itemList");  // ë¶€ëª¨ ë…¸ë“œ ê°€ì ¸ì˜¤ê¸°
   	  itemList.addEventListener("click", (event) => {
-  		// »èÁ¦¹öÆ° Å¬¸¯½Ã 
+  		// ì‚­ì œë²„íŠ¼ í´ë¦­ì‹œ 
   	  	if(event.target.classList.contains('delete-button')) {
-  	  		if (confirm('Á¤¸» »èÁ¦ÇÏ½Ã°Ú½À´Ï±î?')) {
+  	  		if (confirm('ì •ë§ ì‚­ì œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?')) {
   	  			const studyNo = event.target.getAttribute("data-id");
 	  	  		//alert(studyNo);
 	  	  		
-	  	  		// method°¡ GET¹æ½ÄÀ¸·Î ÆÄ¶ó¹ÌÅÍ Àü´Ş
+	  	  		// methodê°€ GETë°©ì‹ìœ¼ë¡œ íŒŒë¼ë¯¸í„° ì „ë‹¬
 	  	  		location.href = `./webprogramming_delete.jsp?study_no=` + studyNo;
 	  	  		//location.href = './webprogramming_delete.jsp?study_no=' + studyNo; + '&key1=value1&key2=value2'; 
 	  	  	}
 	  	}
-  	  	// ¼öÁ¤¹öÆ° Å¬¸¯½Ã
+  	  	
+  		// ìˆ˜ì •ë²„íŠ¼ í´ë¦­ì‹œ
   		if(event.target.classList.contains('update-button')) {
-  			alert('°ø»çÁß');
+  			const studyNo = event.target.getAttribute("data-id");
+  			// ìˆ˜ì •form jspí˜ì´ì§€ ì´ë™
+  			location.href = `./webprogramming_update_form.jsp?study_no=` + studyNo;
   		}
-  	  }); 
-	  // Ç×¸ñÀ» Å¬¸¯ÇÏ¸é »èÁ¦ÇÏ±â
+  		
+  		// ì£¼ì œ í´ë¦­ ì‹œ
+        if (event.target.classList.contains('li-half')) {
+        	let array1 = event.target.textContent.trim().split(',');
+            
+        	const subjectInput = document.getElementById("subject");
+            subjectInput.value = array1[0];
+            
+            const priorInput = document.getElementById("prior");
+            priorInput.value = array1[1].split(':')[1].replace(' ', '');
+        }
+  	  });
+   	  
+  	  // ì „ì²´ì‚­ì œ ë²„íŠ¼ í´ë¦­ì‹œ
+      const btnDeleteAll = document.getElementById("delete-all-button");
+      btnDeleteAll.addEventListener("click", function (event) {
+        event.preventDefault();  // ê¸°ë³¸ ë™ì‘ì„ ë§‰ìŒ
+        //alert('ë§Œë“¤ì–´ ë³´ì„¸ìš”');
+        
+        if (confirm('ì •ë§ ëª¨ë‘ ì‚­ì œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?')) {
+	        const form1 = document.getElementById('form1');
+	        form1.action = './webprogramming_delete_all.jsp';
+	        form1.submit();
+        }
+      });
+  
+	  // í•­ëª©ì„ í´ë¦­í•˜ë©´ ì‚­ì œí•˜ê¸°
       /*
-      const itemList = document.querySelector("#itemList");  // ºÎ¸ğ ³ëµå °¡Á®¿À±â
+      const itemList = document.querySelector("#itemList");  // ë¶€ëª¨ ë…¸ë“œ ê°€ì ¸ì˜¤ê¸°
       itemList.addEventListener("click", (event) => {
-        if(event.target.tagName === "LI") {  // Å¬¸¯ÇÑ ¿ä¼Ò°¡ li ¿ä¼ÒÀÌ¸é
-          if (confirm("»èÁ¦ÇÏ½Ã°Ú½À´Ï±î?")) {  // È®ÀÎ ´ëÈ­»óÀÚ Ç¥½Ã
-            //event.target.remove();  // Å¬¸¯ÇÑ ¿ä¼Ò »èÁ¦
+        if(event.target.tagName === "LI") {  // í´ë¦­í•œ ìš”ì†Œê°€ li ìš”ì†Œì´ë©´
+          if (confirm("ì‚­ì œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?")) {  // í™•ì¸ ëŒ€í™”ìƒì í‘œì‹œ
+            //event.target.remove();  // í´ë¦­í•œ ìš”ì†Œ ì‚­ì œ
           }
         }
 	  });
 	  */
 	}); 
    
-   // Ãß°¡ ¹öÆ° Å¬¸¯½Ã µ¿ÀÛ
+   // ì¶”ê°€ ë²„íŠ¼ í´ë¦­ì‹œ ë™ì‘
    function newRegister() {
-     let form1 = document.getElementById('form1');
-     form1.submit();   // form1ÀÇ action°ªÀ¸·Î inputµ¥ÀÌÅÍ¸¦ ÀÌµ¿
-   }
+	   // ì…ë ¥ ìƒìì— í…ìŠ¤íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
+      if (!document.getElementById("subject").value
+    		  || !document.getElementById("prior").value) {
+    	  alert('ê³µë¶€í•  ì£¼ì œ í˜¹ì€ ìš°ì„ ìˆœìœ„ë¥¼ ì ì–´ì£¼ì„¸ìš”.');
+    	  return;
+      }
+      
+      // ìš°ì„ ìˆœìœ„ì˜ ë‚´ìš©ì´ ìˆ«ìì¸ì§€ ì²´í¬
+      if (isNaN(document.getElementById("prior").value)) {
+    	  alert('ìš°ì„ ìˆœìœ„ëŠ” ìˆ«ìë¡œ ì…ë ¥í•´ ì£¼ì„¸ìš”.');
+    	  document.getElementById("prior").value = '';
+    	  
+    	  return;
+      }
+      
+      const form1 = document.getElementById('form1');
+	  form1.submit();   // form1ì˜ actionê°’ìœ¼ë¡œ inputë°ì´í„°ë¥¼ ì´ë™
+  	}
   </script>
 </body>
 </html>
